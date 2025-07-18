@@ -2,6 +2,8 @@
 
 A Spring Boot application that uses AI to explain and generate infrastructure code (Kubernetes, Terraform, Serverless).
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Overview
 
 Infra-GPT Spring is a web service that leverages the Ollama AI model to:
@@ -101,3 +103,7 @@ If you have an NVIDIA GPU, you can enable GPU acceleration by uncommenting the r
 - The application automatically detects the type of infrastructure code provided
 - For unrecognized formats, it falls back to "generic" type
 - The Ollama service needs time to download the Mistral model on first run
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
