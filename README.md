@@ -1,6 +1,6 @@
-# Infra-GPT Spring
+# InfraGPT: AI-Powered Infrastructure Code Assistant
 
-A Spring Boot application that uses AI to explain and generate infrastructure code (Kubernetes, Terraform, Serverless).
+A Spring Boot application that uses AI to explain, generate, and improve infrastructure code (Kubernetes, Terraform, Serverless).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -87,9 +87,14 @@ Content-Type: application/json
 The application is configured to connect to Ollama running on localhost:11434 using the Mistral model.
 You can modify these settings in `src/main/resources/application.yml`.
 
-## GPU Acceleration (Optional)
+## GPU Acceleration
 
-If you have an NVIDIA GPU, you can enable GPU acceleration by uncommenting the relevant section in the `docker-compose.yaml` file.
+The application is configured to use NVIDIA GPU acceleration by default. This significantly improves the performance of the AI model. Requirements:
+
+- NVIDIA GPU with CUDA support
+- NVIDIA Container Toolkit installed (nvidia-docker)
+
+If you don't have a compatible GPU, you can disable this feature by commenting out the `deploy` section in the `docker-compose.yaml` file.
 
 ## Project Structure
 
