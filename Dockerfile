@@ -1,39 +1,47 @@
 FROM ollama/ollama:latest
 
-# Create a directory for our scripts
 RUN mkdir -p /usr/local/bin
 
-# Create a script to pull mistral model on first run
-RUN cat > /usr/local/bin/init-mistral.sh << 'EOF'
+RUN <<EOF
+cat > /usr/local/bin/init-mistral.sh << 'SCRIPT_EOF'
 #!/bin/bash
 set -e
 
-# Start ollama server in background
+echo "Starting ollama serve in background..."
 ollama serve &
-OLLAMA_PID=$!
+# We don't need OLLAMA_PID anymore if we use `wait` without arguments
+# OLLAMA_PID=\$! # Remove or comment this line
 
-# Wait for ollama to be ready
-echo "Waiting for Ollama server to start..."
+echo "Waiting for Ollama server to be ready at http://localhost:11434..."
+TIMEOUT=60 # seconds
+ELAPSED=0
 while ! curl -s http://localhost:11434/api/tags > /dev/null 2>&1; do
+    if [ \$ELAPSED -ge \$TIMEOUT ]; then
+        echo "Error: Ollama server did not become ready within \$TIMEOUT seconds."
+        exit 1
+    fi
     sleep 1
+    ELAPSED=\\$((ELAPSED + 1))
+    echo -n "." # Print a dot to show progress
 done
+echo "\nOllama server is ready."
 
-echo "Ollama server is ready. Pulling Mistral model..."
+echo "Attempting to pull Mistral model..."
+if ollama pull mistral; then
+    echo "Mistral model pulled successfully!"
+else
+    echo "Error: Failed to pull Mistral model."
+    exit 1 # Exit if pull fails, as the main purpose isn't met
+fi
 
-# Pull mistral model
-ollama pull mistral
-
-echo "Mistral model pulled successfully!"
-
-# Keep the server running
-wait $OLLAMA_PID
+echo "Keeping Ollama server running (waiting for all background jobs)..."
+# Use 'wait' without arguments to wait for all child processes to complete
+wait
+SCRIPT_EOF
 EOF
 
-# Make the script executable
 RUN chmod +x /usr/local/bin/init-mistral.sh
 
-# Expose the ollama port
 EXPOSE 11434
 
-# Use our init script as the entrypoint
 ENTRYPOINT ["/usr/local/bin/init-mistral.sh"]

@@ -1,3 +1,5 @@
 /infra-gpt-spring.iml
 target/*
 .idea/*
+**/node_modules
+**/.next

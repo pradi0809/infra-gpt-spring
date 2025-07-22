@@ -12,22 +12,19 @@ services:
       - ollama_data:/root/.ollama
     restart: unless-stopped
     environment:
-      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_HOST=0.0.0.0 # Good for external access
+      # You might also consider setting OLLAMA_MODELS=/root/.ollama/models
+      # if you want to be super explicit about where models are stored within the volume.
+      # However, /root/.ollama is the default parent directory for models anyway.
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      # Test if /api/tags returns a list containing 'mistral'
+      test: ["CMD", "sh", "-c", "curl -f http://localhost:11434/api/tags | grep -q '\"name\": \"mistral\"'"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 60s
-
-    # GPU acceleration configuration
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+      retries: 10 # Increase retries, as it will fail until mistral is pulled
+      start_period: 60s # Give it some initial time, then it will keep retrying
+      # You might need to increase start_period significantly if the pull is very long,
+      # but with the grep check, it will just keep trying every `interval`.
 
 volumes:
   ollama_data:
